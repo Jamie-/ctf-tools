@@ -1,0 +1,12 @@
+text/css
+text/h323
+text/html
+text/iuls
+text/plain
+text/richtext
+text/scriptlet
+text/tab-separated-values
+text/webviewhtml
+text/x-component
+text/x-setext
+text/x-vcard
