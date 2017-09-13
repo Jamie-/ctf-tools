@@ -26,7 +26,7 @@ def encode(data):
 
     for c in d:
         if not pattern.match(c):
-            out += '\\x' + format(ord(c), 'x')
+            out += '\\x' + format(ord(c), '02x') # If hex encoded char is single digit, pack with 0
         else:
             out += c
 
@@ -39,7 +39,7 @@ def decode(data):
     out = '' # Out string 'builder'
 
     while i < len(d):
-        if d[i] == '\\':
+        if (d[i] == '\\' and d[i+1] == 'x'):
             out += chr(int(d[i+2] + d[i+3], 16))
             i += 4
         else:
