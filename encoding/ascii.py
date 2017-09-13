@@ -5,6 +5,7 @@ import re
 
 parser = argparse.ArgumentParser(description='Encode and decode text to ASCII escapes.')
 parser.add_argument('--strip', action='store_true', help='Strip whitespace from input.')
+parser.add_argument('--all', action='store_true', help='On encode, encode ALL characters (regulars not encoded by default).')
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('--encode', action='store_true', help='Encode a file with ASCII encoding.')
 group.add_argument('--decode', action='store_true', help='Decode a file with ASCII encoding.')
@@ -25,7 +26,7 @@ def encode(data):
     out = ''
 
     for c in d:
-        if not pattern.match(c):
+        if (not pattern.match(c)) or (args.all):
             out += '\\x' + format(ord(c), '02x') # If hex encoded char is single digit, pack with 0
         else:
             out += c
