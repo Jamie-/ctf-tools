@@ -1,0 +1,67 @@
+from kanren import *
+from kanren.core import lall
+import time
+
+def lefto(q, p, list):
+        # give me q such that q is left of p in list
+        # zip(list, list[1:]) gives a list of 2-tuples of neighboring combinations
+        # which can then be pattern-matched against the query
+        return membero((q,p), zip(list, list[1:]))
+
+def nexto(q, p, list):
+        # give me q such that q is next to p in list
+        # match lefto(q, p) OR lefto(p, q)
+        # requirement of vector args instead of tuples doesn't seem to be documented
+        return conde([lefto(q, p, list)], [lefto(p, q, list)])
+
+desks = var()
+
+zebraRules = lall( # name, time, dept, attack type, device
+        # there are 5 desks
+        (eq,            (var(), var(), var(), var(), var()), desks),
+        # Bob is working in the morning
+        (membero,       ('bob', 'morning', var(), var(), var()), desks),
+        # marketing has been sent a virus
+        (membero,       (var(), var(), 'marketing', 'virus', var()), desks),
+        # morning sits next to malware
+        (nexto,         (var(), 'morning', var(), var(), var()),
+                                (var(), var(), var(), 'malware', var()), desks),
+        # hr next to sue
+        (nexto,         ('sue', var(), var(), var(), var()),
+                                (var(), var(), 'hr', var(), var()), desks),
+        # social engineering happens in afternoon
+        (membero,       (var(), 'afternoon', var(), 'social engineering', var()), desks),
+        # sarah has smart watch
+        (membero,       ('sarah', var(), var(), var(), 'smart watch'), desks),
+        # middle has desktop
+        (membero,       (var(), var(), var(var(), var(), var(), var(), 'desktop'), var(), var()), desks),
+        # evening has tablet
+        (membero,       (var(), 'evening', var(), var(), 'tablet'), desks),
+        # hr is at desk 1
+        (eq,            ((var(), var(), 'hr', var(), var()), var(), var(), var(), var()), desks),
+        # it has laptop
+        (membero,       (var(), var(), 'it', var(), 'laptop'), desks),
+        # pete is in sales
+        (membero,       ('pete', var(), 'sales', var(), var()), desks),
+        # lunchtime next to spam
+        (nexto,         (var(), 'lunchtime', var(), var(), var()),
+                                (var(), var(), var(), 'spam', var()), desks),
+        # corporate works at midnight
+        (membero,       (var(), 'midnight', 'corporate', var(), var()), desks),
+        # sarah right of matt (matt left to sarah)
+        (lefto,         ('matt', var(), var(), var(), var()),
+                                ('sarah', var(), var(), var(), var()), desks),
+        # someone got phished
+        (membero,       (var(), var(), var(), 'phish', var()), desks)
+)
+
+t0 = time.time()
+solutions = run(0, desks, zebraRules)
+t1 = time.time()
+dur = t1-t0
+
+
+print "%i solutions in %.2f seconds" % (len(solutions), dur)
+print "Here are all the desks:"
+for line in solutions[0]:
+        print str(line)
